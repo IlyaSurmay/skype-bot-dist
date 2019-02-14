@@ -1,0 +1,41 @@
+{
+  "name": "AzureSkypeBot",
+  "padlock": "uzDywUQzxFFVD0V1dXJkBg==!BBbWWYLj4/UhZ7J9oWy93k5aYWwy7Z0ES0MblQBqKUqKcD9wGiFaVUhmypL0hmX6",
+  "version": "2.0",
+  "services": [
+    {
+      "tenantId": "88d3c085-b0dc-4c37-b69d-5dff4a72aa83",
+      "subscriptionId": "7995ee48-8b52-46b8-a832-7102b968e1c0",
+      "resourceGroup": "testgroup",
+      "serviceName": "AzureSkypeBot",
+      "type": "abs",
+      "name": "AzureSkypeBot",
+      "id": "1"
+    },
+    {
+      "connectionString": "rQMDcpRjz0CcJ2gpTvoaWw==!Vcg81G0VI1YZjsK816lF+AvwAq3epo30U0mxhndlodySnFr0FU/DpQlLXwSMcTyx7rAeYsAPIwycPmiBd5sh2MzWQtc50SrkgZeuujJWImZ//L+p8CfxwGeSuX77JB/BHOkyRzIlTPUwLLPaZp4mL8gf4kNd4uq6+ucluGT4If2thsnuBZ9rjIo5NLp0gFicRmgjyuOz/8jlZCOjlxLwwofn9ANkG0D4zgYtS3AFfXU=",
+      "tenantId": "88d3c085-b0dc-4c37-b69d-5dff4a72aa83",
+      "subscriptionId": "7995ee48-8b52-46b8-a832-7102b968e1c0",
+      "resourceGroup": "testgroup",
+      "serviceName": "azureskypebot99cb",
+      "type": "blob",
+      "id": "2"
+    },
+    {
+      "appId": "",
+      "appPassword": "",
+      "endpoint": "http://localhost:3978/api/messages",
+      "type": "endpoint",
+      "name": "development",
+      "id": "3"
+    },
+    {
+      "appId": "2426c210-0518-4ef5-950f-237e3de958dd",
+      "appPassword": "3bpchdN1F9grri8Cz0v5+g==!SfpcXcXiXsVzs7ViaAVq4J/E83Vk/rQj8ya13ajV4l8=",
+      "endpoint": "https://azureskypebot.azurewebsites.net/api/messages",
+      "type": "endpoint",
+      "name": "production",
+      "id": "4"
+    }
+  ]
+}
