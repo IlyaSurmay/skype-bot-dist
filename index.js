@@ -10,10 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const botbuilder_1 = require("botbuilder");
 const botframework_config_1 = require("botframework-config");
-const onboardingBot_1 = require("./onboardingBot");
 const path = require("path");
 const restify = require("restify");
 const dotenv = require("dotenv");
+const socketIo = require("socket.io");
+const bot_1 = require("./bot");
 const ENV_FILE = path.join(__dirname, '.env');
 dotenv.config({ path: ENV_FILE });
 const BOT_FILE = path.join(__dirname, (process.env.botFilePath || ''));
@@ -22,7 +23,7 @@ try {
     botConfig = botframework_config_1.BotConfiguration.loadSync(BOT_FILE, process.env.botFileSecret);
 }
 catch (err) {
-    console.error(`\nError reading bot file. Please ensure you have valid botFilePath and botFileSecret set for your environment.`);
+    console.error(`\nError reading bot file.  Please ensure you have valid botFilePath and botFileSecret set for your environment.`);
     console.error(`\n - You can find the botFilePath and botFileSecret in the Azure App Service application settings.`);
     console.error(`\n - If you are running this bot locally, consider adding a .env file with botFilePath and botFileSecret.`);
     console.error(`\n - See https://aka.ms/about-bot-file to learn more about .bot file its use and bot configuration.\n\n`);
@@ -46,9 +47,10 @@ adapter.onTurnError = (context, error) => __awaiter(this, void 0, void 0, functi
 const memoryStorage = new botbuilder_1.MemoryStorage();
 const conversationState = new botbuilder_1.ConversationState(memoryStorage);
 const userState = new botbuilder_1.UserState(memoryStorage);
-const bot = new onboardingBot_1.OnboardingBot(conversationState, userState, adapter);
+const bot = new bot_1.SkypeBot();
 const references = [];
 const server = restify.createServer();
+const io = socketIo.listen(server.server);
 server.use(restify.plugins.bodyParser({ mapParams: true }));
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${server.name} listening to ${server.url}`);
@@ -60,29 +62,32 @@ server.post('/api/messages', (req, res) => {
         const reference = botbuilder_1.TurnContext.getConversationReference(context.activity);
         const isChatReferenceExist = references.map(r => r.conversation.id).includes(reference.conversation.id);
         console.log('isChatReferenceExist ', isChatReferenceExist);
-        console.log(references.map(r => r.conversation.id));
         console.log(reference.conversation.id);
         if (!isChatReferenceExist) {
             references.push(reference);
-            console.log(references);
         }
+        io.emit('onTurn', context);
         yield bot.onTurn(context);
     }));
 });
-server.post('/api/notification', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    console.log(req.body);
-    if (req.body.all === 'true') {
+io.sockets.on('connection', (socket) => {
+    console.log('WS connection established');
+    socket.emit('news', { hello: 'world' });
+    socket.on('my other event', (data) => {
+        console.log(data);
+    });
+    socket.on('disconnect', () => {
+        console.log('WS connection closed');
+    });
+    socket.on('notification', (msg) => {
+        console.log('BOT: notification event received');
         references.forEach((r) => __awaiter(this, void 0, void 0, function* () {
-            yield bot.sendNotification(r, 'This notification was sent to everyone!');
+            yield adapter.continueConversation(r, (proactiveTurnContext) => __awaiter(this, void 0, void 0, function* () {
+                yield proactiveTurnContext.sendActivity(msg);
+            }));
         }));
-        res.send(200);
-        return;
-    }
-    const reference = findReferenceByConversationId(req.body.conversationId);
-    console.log('found chat reference', reference);
-    yield bot.sendNotification(reference);
-    res.send(200);
-}));
+    });
+});
 function findReferenceByConversationId(conversationId) {
     return references.find(r => r.conversation.id === conversationId) || undefined;
 }
