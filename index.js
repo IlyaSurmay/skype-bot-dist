@@ -63,7 +63,6 @@ server.post('/api/messages', (req, res) => {
         }
         const isAuthorized = yield bot.isAuthorizedProperty.get(context, false);
         console.log('isAuthorized = ', isAuthorized);
-        console.log('context', context);
         if (context.activity.type === 'message') {
             if (!isAuthorized) {
                 io.emit('verification_attempt', { body: context.activity.text, reference });
