@@ -10,11 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const botbuilder_1 = require("botbuilder");
 const botframework_config_1 = require("botframework-config");
+const bot_1 = require("./bot");
 const path = require("path");
 const restify = require("restify");
 const dotenv = require("dotenv");
 const socketIo = require("socket.io");
-const bot_1 = require("./bot");
 const ENV_FILE = path.join(__dirname, '.env');
 dotenv.config({ path: ENV_FILE });
 const BOT_FILE = path.join(__dirname, (process.env.botFilePath || ''));
@@ -41,52 +41,52 @@ const adapter = new botbuilder_1.BotFrameworkAdapter({
 adapter.onTurnError = (context, error) => __awaiter(this, void 0, void 0, function* () {
     console.error(`\n [onTurnError]: ${error}`);
     yield context.sendActivity(`Oops. Something went wrong!`);
-    yield conversationState.clear(context);
-    yield conversationState.saveChanges(context);
 });
 const memoryStorage = new botbuilder_1.MemoryStorage();
-const conversationState = new botbuilder_1.ConversationState(memoryStorage);
 const userState = new botbuilder_1.UserState(memoryStorage);
-const bot = new bot_1.SkypeBot();
+const bot = new bot_1.SkypeBot(userState);
 const references = [];
 const server = restify.createServer();
 const io = socketIo.listen(server.server);
 server.use(restify.plugins.bodyParser({ mapParams: true }));
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${server.name} listening to ${server.url}`);
-    console.log(`\nGet Bot Framework Emulator: https://aka.ms/botframework-emulator`);
-    console.log(`\nTo talk to your bot, open echoBot-with-counter.bot file in the Emulator`);
+    console.log(`\nTo talk to your bot, open .bot file in the Emulator`);
 });
 server.post('/api/messages', (req, res) => {
     adapter.processActivity(req, res, (context) => __awaiter(this, void 0, void 0, function* () {
         const reference = botbuilder_1.TurnContext.getConversationReference(context.activity);
         const isChatReferenceExist = references.map(r => r.conversation.id).includes(reference.conversation.id);
-        console.log('isChatReferenceExist ', isChatReferenceExist);
-        console.log(reference.conversation.id);
+        console.log('isChatReferenceExist =', isChatReferenceExist);
         if (!isChatReferenceExist) {
             references.push(reference);
         }
-        io.emit('onTurn', context);
+        const isAuthorized = yield bot.isAuthorizedProperty.get(context, false);
+        console.log('isAuthorized = ', isAuthorized);
+        if (context.activity.type === 'message') {
+            if (!isAuthorized) {
+                io.emit('verification_attempt', { body: context.activity.text, reference });
+            }
+        }
         yield bot.onTurn(context);
     }));
 });
 io.sockets.on('connection', (socket) => {
     console.log('WS connection established');
-    socket.emit('news', { hello: 'world' });
-    socket.on('my other event', (data) => {
-        console.log(data);
-    });
     socket.on('disconnect', () => {
         console.log('WS connection closed');
     });
-    socket.on('notification', (msg) => {
-        console.log('BOT: notification event received');
-        references.forEach((r) => __awaiter(this, void 0, void 0, function* () {
-            yield adapter.continueConversation(r, (proactiveTurnContext) => __awaiter(this, void 0, void 0, function* () {
-                yield proactiveTurnContext.sendActivity(msg);
-            }));
+    socket.on('message', (msg) => __awaiter(this, void 0, void 0, function* () {
+        console.log('BOT: message event received', msg);
+        yield adapter.continueConversation(msg.reference, (proactiveTurnContext) => __awaiter(this, void 0, void 0, function* () {
+            if (msg.callbackId && msg.callbackId.indexOf('verification-success') > -1) {
+                console.log('verification success event received');
+                yield bot.isAuthorizedProperty.set(proactiveTurnContext, true);
+                yield bot.userState.saveChanges(proactiveTurnContext);
+            }
+            yield proactiveTurnContext.sendActivity(msg.text);
         }));
-    });
+    }));
 });
 function findReferenceByConversationId(conversationId) {
     return references.find(r => r.conversation.id === conversationId) || undefined;
