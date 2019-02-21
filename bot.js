@@ -34,9 +34,8 @@ class SkypeBot {
                 for (const i in turnContext.activity.membersAdded) {
                     if (turnContext.activity.membersAdded[i].id !== turnContext.activity.recipient.id) {
                         yield turnContext.sendActivity(`Welcome! 
-          Please enter your email and a verification code. 
-          You can get you verification code in your user profile in Renaizant. 
-          Please enter that data in the following format: "your@email.com XXXXXXXX", where XXXXXXXX is your verification code`);
+          Please enter your email and a verification code in the following format: "your@email.com XXXXXXXX", where XXXXXXXX is your verification code. 
+          You can get you verification code in your user profile in Renaizant.`);
                     }
                 }
             }
