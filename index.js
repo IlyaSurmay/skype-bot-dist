@@ -11,6 +11,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const botbuilder_1 = require("botbuilder");
 const botbuilder_azure_1 = require("botbuilder-azure");
 const botframework_config_1 = require("botframework-config");
+const botframework_connector_1 = require("botframework-connector");
 const bot_1 = require("./bot");
 const path = require("path");
 const restify = require("restify");
@@ -33,6 +34,7 @@ catch (err) {
 const DEV_ENVIRONMENT = 'development';
 const BOT_CONFIGURATION = (process.env.NODE_ENV || DEV_ENVIRONMENT);
 const endpointConfig = botConfig.findServiceByNameOrId(BOT_CONFIGURATION);
+botframework_connector_1.MicrosoftAppCredentials.trustServiceUrl('https://smba.trafficmanager.net/apis/', new Date(8640000000000000));
 const adapter = new botbuilder_1.BotFrameworkAdapter({
     appId: endpointConfig.appId || process.env.microsoftAppID,
     appPassword: endpointConfig.appPassword || process.env.microsoftAppPassword,
