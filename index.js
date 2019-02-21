@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const botbuilder_1 = require("botbuilder");
+const botbuilder_azure_1 = require("botbuilder-azure");
 const botframework_config_1 = require("botframework-config");
 const bot_1 = require("./bot");
 const path = require("path");
@@ -43,7 +44,15 @@ adapter.onTurnError = (context, error) => __awaiter(this, void 0, void 0, functi
     yield context.sendActivity(`Oops. Something went wrong!`);
 });
 const memoryStorage = new botbuilder_1.MemoryStorage();
-const userState = new botbuilder_1.UserState(memoryStorage);
+const dbStorage = new botbuilder_azure_1.CosmosDbStorage({
+    serviceEndpoint: process.env.AZURE_SERVICE_ENDPOINT,
+    authKey: process.env.AZURE_AUTH_KEY,
+    databaseId: process.env.AZURE_DATABASE,
+    collectionId: process.env.AZURE_COLLECTION,
+    databaseCreationRequestOptions: {},
+    documentCollectionRequestOptions: {}
+});
+const userState = new botbuilder_1.UserState(dbStorage);
 const bot = new bot_1.SkypeBot(userState);
 const references = [];
 const server = restify.createServer();
