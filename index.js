@@ -43,7 +43,6 @@ adapter.onTurnError = (context, error) => __awaiter(this, void 0, void 0, functi
     console.error(`\n [onTurnError]: ${error}`);
     yield context.sendActivity(`Oops. Something went wrong!`);
 });
-const memoryStorage = new botbuilder_1.MemoryStorage();
 const dbStorage = new botbuilder_azure_1.CosmosDbStorage({
     serviceEndpoint: process.env.AZURE_SERVICE_ENDPOINT,
     authKey: process.env.AZURE_AUTH_KEY,
@@ -54,7 +53,6 @@ const dbStorage = new botbuilder_azure_1.CosmosDbStorage({
 });
 const userState = new botbuilder_1.UserState(dbStorage);
 const bot = new bot_1.SkypeBot(userState);
-const references = [];
 const server = restify.createServer();
 const io = socketIo.listen(server.server);
 server.use(restify.plugins.bodyParser({ mapParams: true }));
@@ -65,17 +63,10 @@ server.listen(process.env.port || process.env.PORT || 3978, () => {
 server.post('/api/messages', (req, res) => {
     adapter.processActivity(req, res, (context) => __awaiter(this, void 0, void 0, function* () {
         const reference = botbuilder_1.TurnContext.getConversationReference(context.activity);
-        const isChatReferenceExist = references.map(r => r.conversation.id).includes(reference.conversation.id);
-        console.log('isChatReferenceExist =', isChatReferenceExist);
-        if (!isChatReferenceExist) {
-            references.push(reference);
-        }
         const isAuthorized = yield bot.isAuthorizedProperty.get(context, false);
         console.log('isAuthorized = ', isAuthorized);
-        if (context.activity.type === 'message') {
-            if (!isAuthorized) {
-                io.emit('verification_attempt', { body: context.activity.text, reference });
-            }
+        if (context.activity.type === 'message' && !isAuthorized) {
+            io.emit('verification_attempt', { body: context.activity.text, reference });
         }
         yield bot.onTurn(context);
     }));
@@ -86,7 +77,7 @@ io.sockets.on('connection', (socket) => {
         console.log('WS connection closed');
     });
     socket.on('message', (msg) => __awaiter(this, void 0, void 0, function* () {
-        console.log('BOT: message event received', msg);
+        console.log('BOT: message event received');
         yield adapter.continueConversation(msg.reference, (proactiveTurnContext) => __awaiter(this, void 0, void 0, function* () {
             if (msg.callbackId && msg.callbackId.indexOf('verification-success') > -1) {
                 console.log('verification success event received');
@@ -97,6 +88,3 @@ io.sockets.on('connection', (socket) => {
         }));
     }));
 });
-function findReferenceByConversationId(conversationId) {
-    return references.find(r => r.conversation.id === conversationId) || undefined;
-}
