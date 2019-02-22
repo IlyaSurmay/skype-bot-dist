@@ -27,6 +27,9 @@ class SkypeBot {
                     yield this.isWelcomeMessageSent.set(turnContext, true);
                 }
                 yield this.userState.saveChanges(turnContext);
+                if (turnContext.activity.type === botbuilder_1.ActivityTypes.ContactRelationUpdate) {
+                    console.log(turnContext.activity);
+                }
             }
         });
     }
