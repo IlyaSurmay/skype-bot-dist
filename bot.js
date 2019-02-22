@@ -19,6 +19,7 @@ class SkypeBot {
     }
     onTurn(turnContext) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('turnContext.activity.type', turnContext.activity.type);
             if (turnContext.activity.type === botbuilder_1.ActivityTypes.ConversationUpdate || turnContext.activity.type === botbuilder_1.ActivityTypes.ContactRelationUpdate) {
                 const isWelcomeMessageSent = yield this.isWelcomeMessageSent.get(turnContext, false);
                 if (!isWelcomeMessageSent) {
