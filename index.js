@@ -43,8 +43,9 @@ const adapter = new botbuilder_1.BotFrameworkAdapter({
 });
 adapter.onTurnError = (context, error) => __awaiter(this, void 0, void 0, function* () {
     console.error(`\n [onTurnError]: ${error}`);
-    console.error(`${context.activity.type}`);
-    yield context.sendActivity(`Oops. Something went wrong!`);
+    if (context.activity.type !== botbuilder_1.ActivityTypes.ContactRelationUpdate) {
+        yield context.sendActivity(`Oops. Something went wrong!`);
+    }
 });
 const dbStorage = new botbuilder_azure_1.CosmosDbStorage({
     serviceEndpoint: process.env.AZURE_SERVICE_ENDPOINT,
