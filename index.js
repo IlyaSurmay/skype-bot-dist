@@ -78,6 +78,10 @@ server.post('/api/messages', (req, res) => {
             yield bot.isWelcomeMessageSent.set(context, false);
             yield bot.isAuthorizedProperty.set(context, false);
             io.emit('remove_reference', { reference });
+            if (context.activity.action === 'remove') {
+                console.log('BOT: user removed bot. OnTurn function not called');
+                return;
+            }
         }
         yield bot.onTurn(context, reference);
     }));
