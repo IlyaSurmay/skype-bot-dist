@@ -55,9 +55,9 @@ const dbStorage = new botbuilder_azure_1.CosmosDbStorage({
     documentCollectionRequestOptions: {}
 });
 const userState = new botbuilder_1.UserState(dbStorage);
-const bot = new bot_1.SkypeBot(userState);
 const server = restify.createServer();
 const io = socketIo.listen(server.server);
+const bot = new bot_1.SkypeBot(userState, io);
 server.use(restify.plugins.bodyParser({ mapParams: true }));
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${server.name} listening to ${server.url}`);
@@ -71,7 +71,7 @@ server.post('/api/messages', (req, res) => {
         if (context.activity.type === 'message' && !isAuthorized) {
             io.emit('verification_attempt', { body: context.activity.text, reference });
         }
-        yield bot.onTurn(context);
+        yield bot.onTurn(context, reference);
     }));
 });
 io.sockets.on('connection', (socket) => {
