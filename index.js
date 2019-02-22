@@ -80,13 +80,13 @@ io.sockets.on('connection', (socket) => {
     });
     socket.on('message', (msg) => __awaiter(this, void 0, void 0, function* () {
         console.log('BOT: message event received');
-        yield adapter.continueConversation(msg.reference, (proactiveTurnContext) => __awaiter(this, void 0, void 0, function* () {
-            if (msg.callbackId && msg.callbackId.indexOf('verification-success') > -1) {
+        yield adapter.continueConversation(msg.reference, (turnContext) => __awaiter(this, void 0, void 0, function* () {
+            if (msg.callbackId && msg.callbackId === 'verification-success') {
                 console.log('verification success event received');
-                yield bot.isAuthorizedProperty.set(proactiveTurnContext, true);
-                yield bot.userState.saveChanges(proactiveTurnContext);
+                yield bot.isAuthorizedProperty.set(turnContext, true);
+                yield bot.userState.saveChanges(turnContext);
             }
-            yield proactiveTurnContext.sendActivity(msg.text);
+            yield turnContext.sendActivity(msg.text);
         }));
     }));
 });

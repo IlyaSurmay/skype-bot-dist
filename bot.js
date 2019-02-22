@@ -19,10 +19,7 @@ class SkypeBot {
     }
     onTurn(turnContext) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('turnContext.activity.type', turnContext.activity.type);
-            if (turnContext.activity.type === botbuilder_1.ActivityTypes.Message) {
-            }
-            else if (turnContext.activity.type === botbuilder_1.ActivityTypes.ConversationUpdate || turnContext.activity.type === botbuilder_1.ActivityTypes.ContactRelationUpdate) {
+            if (turnContext.activity.type === botbuilder_1.ActivityTypes.ConversationUpdate || turnContext.activity.type === botbuilder_1.ActivityTypes.ContactRelationUpdate) {
                 const isWelcomeMessageSent = yield this.isWelcomeMessageSent.get(turnContext, false);
                 if (!isWelcomeMessageSent) {
                     yield this.sendWelcomeMessage(turnContext);
@@ -35,7 +32,7 @@ class SkypeBot {
     sendWelcomeMessage(turnContext) {
         return __awaiter(this, void 0, void 0, function* () {
             yield turnContext.sendActivity(`Welcome! 
-    Please enter your email and a verification code in the following format: "your@email.com XXXXXXXX", where XXXXXXXX is your verification code. 
+    Please enter your verification code. 
     You can get you verification code in your user profile in Renaizant.`);
         });
     }
