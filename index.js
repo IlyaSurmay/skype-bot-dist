@@ -43,6 +43,7 @@ const adapter = new botbuilder_1.BotFrameworkAdapter({
 });
 adapter.onTurnError = (context, error) => __awaiter(this, void 0, void 0, function* () {
     console.error(`\n [onTurnError]: ${error}`);
+    console.error(`${context.activity.type}`);
     yield context.sendActivity(`Oops. Something went wrong!`);
 });
 const dbStorage = new botbuilder_azure_1.CosmosDbStorage({
@@ -82,7 +83,7 @@ io.sockets.on('connection', (socket) => {
         console.log('BOT: message event received');
         yield adapter.continueConversation(msg.reference, (turnContext) => __awaiter(this, void 0, void 0, function* () {
             if (msg.callbackId && msg.callbackId === 'verification-success') {
-                console.log('verification success event received');
+                console.log('BOT: verification success event received');
                 yield bot.isAuthorizedProperty.set(turnContext, true);
                 yield bot.userState.saveChanges(turnContext);
             }
