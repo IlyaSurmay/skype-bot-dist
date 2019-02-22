@@ -72,6 +72,13 @@ server.post('/api/messages', (req, res) => {
         if (context.activity.type === 'message' && !isAuthorized) {
             io.emit('verification_attempt', { body: context.activity.text, reference });
         }
+        if (context.activity.type === botbuilder_1.ActivityTypes.ContactRelationUpdate) {
+            console.log('REMOVING REFERENCE AND USER STORAGE');
+            console.log(context.activity);
+            yield bot.isWelcomeMessageSent.set(context, false);
+            yield bot.isAuthorizedProperty.set(context, false);
+            io.emit('remove_reference', { reference });
+        }
         yield bot.onTurn(context, reference);
     }));
 });

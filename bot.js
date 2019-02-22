@@ -27,13 +27,6 @@ class SkypeBot {
                     yield this.sendWelcomeMessage(turnContext);
                     yield this.isWelcomeMessageSent.set(turnContext, true);
                 }
-                if (turnContext.activity.type === botbuilder_1.ActivityTypes.ContactRelationUpdate) {
-                    console.log('REMOVING REFERENCE AND USER STORAGE');
-                    console.log(turnContext.activity);
-                    yield this.isWelcomeMessageSent.set(turnContext, false);
-                    yield this.isAuthorizedProperty.set(turnContext, false);
-                    this.io.emit('remove_reference', { reference });
-                }
                 yield this.userState.saveChanges(turnContext);
             }
         });
