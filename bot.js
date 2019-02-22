@@ -27,7 +27,7 @@ class SkypeBot {
     }
     sendWelcomeMessage(turnContext) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (turnContext.activity.membersAdded.length !== 0) {
+            if (turnContext.activity.membersAdded && turnContext.activity.membersAdded.length) {
                 for (const i in turnContext.activity.membersAdded) {
                     if (turnContext.activity.membersAdded[i].id !== turnContext.activity.recipient.id) {
                         yield turnContext.sendActivity(`Welcome! 
