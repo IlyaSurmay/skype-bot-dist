@@ -20,11 +20,8 @@ class SkypeBot {
             if (turnContext.activity.type === botbuilder_1.ActivityTypes.Message) {
                 yield this.userState.saveChanges(turnContext);
             }
-            else if (turnContext.activity.type === botbuilder_1.ActivityTypes.ConversationUpdate) {
+            else if (turnContext.activity.type === botbuilder_1.ActivityTypes.ConversationUpdate || turnContext.activity.type === botbuilder_1.ActivityTypes.ContactRelationUpdate) {
                 yield this.sendWelcomeMessage(turnContext);
-            }
-            else {
-                yield turnContext.sendActivity(`[${turnContext.activity.type} event detected]`);
             }
         });
     }
