@@ -75,8 +75,7 @@ server.post('/api/messages', (req, res) => {
         if (context.activity.type === botbuilder_1.ActivityTypes.ContactRelationUpdate) {
             console.log('REMOVING REFERENCE AND USER STORAGE');
             console.log(context.activity);
-            yield bot.isWelcomeMessageSent.set(context, false);
-            yield bot.isAuthorizedProperty.set(context, false);
+            yield bot.userState.delete(context);
             io.emit('remove_reference', { reference });
             if (context.activity.action === 'remove') {
                 console.log('BOT: user removed bot. OnTurn function not called');
