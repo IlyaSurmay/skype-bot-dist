@@ -33,7 +33,7 @@ catch (err) {
 }
 const DEV_ENVIRONMENT = 'development';
 const BOT_CONFIGURATION = (process.env.NODE_ENV || DEV_ENVIRONMENT);
-const endpointConfig = botConfig.findServiceByNameOrId(BOT_CONFIGURATION);
+const endpointConfig = botConfig && botConfig.findServiceByNameOrId(BOT_CONFIGURATION) || {};
 botframework_connector_1.MicrosoftAppCredentials.trustServiceUrl('https://smba.trafficmanager.net/apis/', new Date(8640000000000000));
 const adapter = new botbuilder_1.BotFrameworkAdapter({
     appId: endpointConfig.appId || process.env.microsoftAppID,
@@ -48,17 +48,17 @@ adapter.onTurnError = (context, error) => __awaiter(this, void 0, void 0, functi
     }
 });
 const dbStorage = new botbuilder_azure_1.CosmosDbStorage({
-    serviceEndpoint: process.env.AZURE_SERVICE_ENDPOINT,
-    authKey: process.env.AZURE_AUTH_KEY,
-    databaseId: process.env.AZURE_DATABASE,
-    collectionId: process.env.AZURE_COLLECTION,
+    serviceEndpoint: process.env.AZURE_SERVICE_ENDPOINT || '',
+    authKey: process.env.AZURE_AUTH_KEY || '',
+    databaseId: process.env.AZURE_DATABASE || '',
+    collectionId: process.env.AZURE_COLLECTION || '',
     databaseCreationRequestOptions: {},
     documentCollectionRequestOptions: {}
 });
 const userState = new botbuilder_1.UserState(dbStorage);
 const server = restify.createServer();
 const io = socketIo.listen(server.server);
-const bot = new bot_1.SkypeBot(userState, io);
+const bot = new bot_1.SkypeBot(userState);
 server.use(restify.plugins.bodyParser({ mapParams: true }));
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${server.name} listening to ${server.url}`);
@@ -92,6 +92,7 @@ io.sockets.on('connection', (socket) => {
     });
     socket.on('message', (msg) => __awaiter(this, void 0, void 0, function* () {
         console.log('BOT: message event received');
+        console.log(msg);
         yield adapter.continueConversation(msg.reference, (turnContext) => __awaiter(this, void 0, void 0, function* () {
             if (msg.callbackId && msg.callbackId === 'verification-success') {
                 console.log('BOT: verification success event received');

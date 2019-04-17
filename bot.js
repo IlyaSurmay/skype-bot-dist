@@ -12,9 +12,8 @@ const botbuilder_1 = require("botbuilder");
 const IS_AUTHORIZED = 'isAuthorizedProperty';
 const IS_WELCOME_MESSAGE_SENT = 'isWelcomeMessageSent';
 class SkypeBot {
-    constructor(userState, io) {
+    constructor(userState) {
         this.userState = userState;
-        this.io = io;
         this.isAuthorizedProperty = userState.createProperty(IS_AUTHORIZED);
         this.isWelcomeMessageSent = userState.createProperty(IS_WELCOME_MESSAGE_SENT);
     }
