@@ -12,12 +12,8 @@ const botbuilder_1 = require("botbuilder");
 const botbuilder_azure_1 = require("botbuilder-azure");
 const botframework_connector_1 = require("botframework-connector");
 const bot_1 = require("./bot");
-const path = require("path");
 const restify = require("restify");
-const dotenv = require("dotenv");
 const socketIo = require("socket.io");
-const ENV_FILE = path.join(__dirname, '.env');
-dotenv.config({ path: ENV_FILE });
 botframework_connector_1.MicrosoftAppCredentials.trustServiceUrl('https://smba.trafficmanager.net/apis/', new Date(8640000000000000));
 const adapter = new botbuilder_1.BotFrameworkAdapter({
     appId: process.env.MICROSOFT_APP_ID,
