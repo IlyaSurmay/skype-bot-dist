@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const botbuilder_1 = require("botbuilder");
 const botbuilder_azure_1 = require("botbuilder-azure");
-const botframework_config_1 = require("botframework-config");
 const botframework_connector_1 = require("botframework-connector");
 const bot_1 = require("./bot");
 const path = require("path");
@@ -19,25 +18,10 @@ const dotenv = require("dotenv");
 const socketIo = require("socket.io");
 const ENV_FILE = path.join(__dirname, '.env');
 dotenv.config({ path: ENV_FILE });
-const BOT_FILE = path.join(__dirname, (process.env.botFilePath || ''));
-let botConfig;
-try {
-    botConfig = botframework_config_1.BotConfiguration.loadSync(BOT_FILE, process.env.botFileSecret);
-}
-catch (err) {
-    console.error(`\nError reading bot file.  Please ensure you have valid botFilePath and botFileSecret set for your environment.`);
-    console.error(`\n - You can find the botFilePath and botFileSecret in the Azure App Service application settings.`);
-    console.error(`\n - If you are running this bot locally, consider adding a .env file with botFilePath and botFileSecret.`);
-    console.error(`\n - See https://aka.ms/about-bot-file to learn more about .bot file its use and bot configuration.\n\n`);
-    process.exit();
-}
-const DEV_ENVIRONMENT = 'development';
-const BOT_CONFIGURATION = (process.env.NODE_ENV || DEV_ENVIRONMENT);
-const endpointConfig = botConfig && botConfig.findServiceByNameOrId(BOT_CONFIGURATION) || {};
 botframework_connector_1.MicrosoftAppCredentials.trustServiceUrl('https://smba.trafficmanager.net/apis/', new Date(8640000000000000));
 const adapter = new botbuilder_1.BotFrameworkAdapter({
-    appId: endpointConfig.appId || process.env.microsoftAppID,
-    appPassword: endpointConfig.appPassword || process.env.microsoftAppPassword,
+    appId: process.env.MICROSOFT_APP_ID,
+    appPassword: process.env.MICROSOFT_APP_PASSWORD,
     channelService: process.env.ChannelService,
     openIdMetadata: process.env.BotOpenIdMetadata
 });
@@ -61,8 +45,7 @@ const io = socketIo.listen(server.server);
 const bot = new bot_1.SkypeBot(userState);
 server.use(restify.plugins.bodyParser({ mapParams: true }));
 server.listen(process.env.port || process.env.PORT || 3978, () => {
-    console.log(`\n${server.name} listening to ${server.url}`);
-    console.log(`\nTo talk to your bot, open .bot file in the Emulator`);
+    console.log(`${server.name} listening to ${server.url}`);
 });
 server.post('/api/messages', (req, res) => {
     adapter.processActivity(req, res, (context) => __awaiter(this, void 0, void 0, function* () {
