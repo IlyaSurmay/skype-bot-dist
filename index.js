@@ -22,7 +22,8 @@ const adapter = new botbuilder_1.BotFrameworkAdapter({
     openIdMetadata: process.env.BotOpenIdMetadata
 });
 adapter.onTurnError = (context, error) => __awaiter(this, void 0, void 0, function* () {
-    console.error(`\n [onTurnError]: ${error}`);
+    console.error(`[onTurnError]`);
+    console.log(error);
     if (context.activity.type !== botbuilder_1.ActivityTypes.ContactRelationUpdate) {
         yield context.sendActivity(`Oops. Something went wrong!`);
     }
